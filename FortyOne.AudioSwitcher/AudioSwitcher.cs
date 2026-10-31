@@ -246,7 +246,7 @@ namespace FortyOne.AudioSwitcher
                 icon.Dispose();
             }
 
-            var dev = AudioDeviceManager.Controller.GetDevice(Program.Settings.StartupPlaybackDeviceID);
+            var dev = DeviceResolver.Resolve(Program.Settings.StartupPlaybackDeviceID);
 
             if (dev != null)
             {
@@ -255,7 +255,7 @@ namespace FortyOne.AudioSwitcher
                     await dev.SetAsDefaultCommunicationsAsync();
             }
 
-            dev = AudioDeviceManager.Controller.GetDevice(Program.Settings.StartupRecordingDeviceID);
+            dev = DeviceResolver.Resolve(Program.Settings.StartupRecordingDeviceID);
 
             if (dev != null)
             {
@@ -330,6 +330,14 @@ namespace FortyOne.AudioSwitcher
                 refreshAction = RefreshPlaybackDevices;
             else if (e.Device.IsCaptureDevice)
                 refreshAction = RefreshRecordingDevices;
+
+            //A reconnected wireless headset may have a new ID: re-bind hotkeys to it by name
+            var deviceRefresh = refreshAction;
+            refreshAction = () =>
+            {
+                deviceRefresh();
+                HotKeyManager.RefreshHotkeys();
+            };
 
             if (InvokeRequired)
                 BeginInvoke(refreshAction);
@@ -813,6 +821,7 @@ namespace FortyOne.AudioSwitcher
             listBoxPlayback.Items.Clear();
             foreach (var ad in AudioDeviceManager.Controller.GetPlaybackDevices(_deviceStateFilter).ToList())
             {
+                DeviceResolver.Remember(ad);
                 var li = new ListViewItem();
                 li.Text = ad.Name;
                 li.Tag = ad;
@@ -946,6 +955,7 @@ namespace FortyOne.AudioSwitcher
 
             foreach (var ad in AudioDeviceManager.Controller.GetCaptureDevices(_deviceStateFilter).ToList())
             {
+                DeviceResolver.Remember(ad);
                 var li = new ListViewItem();
                 li.Text = ad.Name;
                 li.Tag = ad;

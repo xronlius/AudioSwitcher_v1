@@ -137,6 +137,7 @@
     <Compile Include="ExceptionDisplayForm.Designer.cs">
       <DependentUpon>ExceptionDisplayForm.cs</DependentUpon>
     </Compile>
+    <Compile Include="DeviceResolver.cs" />
     <Compile Include="FavouriteDeviceManager.cs" />
     <Compile Include="Helpers\ConnectionHelper.cs" />
     <Compile Include="Helpers\ImageHelper.cs" />

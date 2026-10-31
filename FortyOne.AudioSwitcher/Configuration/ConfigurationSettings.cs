@@ -27,6 +27,7 @@ namespace FortyOne.AudioSwitcher.Configuration
         public const string SETTING_SHOWDISCONNECTEDDDEVICES = "ShowDisconnectedDevices";
         public const string SETTING_SHOWDPDEVICEIICONINTRAY = "ShowDPDeviceIconInTray";
         public const string SETTING_UPDATE_NOTIFICATIONS_ENABLED = "UpdateNotificationsEnabled";
+        public const string SETTING_KNOWNDEVICENAMES = "KnownDeviceNames";
         private readonly ISettingsSource _configWriter;
 
         public ConfigurationSettings(ISettingsSource source)
@@ -151,6 +152,12 @@ namespace FortyOne.AudioSwitcher.Configuration
         {
             get { return _configWriter.Get(SETTING_FAVOURITEDEVICES); }
             set { _configWriter.Set(SETTING_FAVOURITEDEVICES, value); }
+        }
+
+        public string KnownDeviceNames
+        {
+            get { return SettingExists(SETTING_KNOWNDEVICENAMES) ? _configWriter.Get(SETTING_KNOWNDEVICENAMES) : ""; }
+            set { _configWriter.Set(SETTING_KNOWNDEVICENAMES, value); }
         }
 
         public string HotKeys
@@ -312,6 +319,7 @@ namespace FortyOne.AudioSwitcher.Configuration
             EnableQuickSwitch = otherSettings.EnableQuickSwitch;
             FavouriteDevices = otherSettings.FavouriteDevices;
             HotKeys = otherSettings.HotKeys;
+            KnownDeviceNames = otherSettings.KnownDeviceNames;
             PollForUpdates = otherSettings.PollForUpdates;
             ShowDisabledDevices = otherSettings.ShowDisabledDevices;
             ShowUnknownDevicesInHotkeyList = otherSettings.ShowUnknownDevicesInHotkeyList;

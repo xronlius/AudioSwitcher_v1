@@ -37,7 +37,17 @@ namespace FortyOne.AudioSwitcher.HotKeyData
 
         public IDevice Device
         {
-            get { return AudioDeviceManager.Controller.GetDevice(DeviceId); }
+            get
+            {
+                //Wireless headsets can come back with a new ID - find them by name and re-bind
+                var device = DeviceResolver.Resolve(DeviceId);
+                if (device != null && device.Id != DeviceId)
+                {
+                    DeviceId = device.Id;
+                    HotKeyManager.PersistHotKeys();
+                }
+                return device;
+            }
         }
 
         public string DeviceName

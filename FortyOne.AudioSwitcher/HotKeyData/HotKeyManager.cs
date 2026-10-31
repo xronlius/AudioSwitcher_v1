@@ -86,14 +86,22 @@ namespace FortyOne.AudioSwitcher.HotKeyData
 
         public static void SaveHotKeys()
         {
+            PersistHotKeys();
+            RefreshHotkeys();
+        }
+
+        /// <summary>
+        ///     Writes the hotkeys to settings without rebuilding the bound list
+        ///     (safe to call while the list is being enumerated).
+        /// </summary>
+        public static void PersistHotKeys()
+        {
             var hotkeydata = "";
-            foreach (var hk in _hotkeys)
+            foreach (var hk in _hotkeys.ToList())
             {
                 hotkeydata += "[" + (int)hk.Key + "," + (int)hk.Modifiers + "," + hk.DeviceId + "]";
             }
             Program.Settings.HotKeys = hotkeydata;
-
-            RefreshHotkeys();
         }
 
         public static bool AddHotKey(HotKey hk)
@@ -118,9 +126,9 @@ namespace FortyOne.AudioSwitcher.HotKeyData
         {
             HotKeys.Clear();
             var filterInvalid = !Program.Settings.ShowUnknownDevicesInHotkeyList;
-            IEnumerable<HotKey> hotkeyList = _hotkeys;
+            IEnumerable<HotKey> hotkeyList = _hotkeys.ToList();
             if (filterInvalid)
-                hotkeyList = hotkeyList.Where(x => x.Device != null);
+                hotkeyList = hotkeyList.Where(x => x.Device != null).ToList();
             
             foreach (var k in hotkeyList)
             {

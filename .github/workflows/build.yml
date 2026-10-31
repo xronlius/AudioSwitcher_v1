@@ -1,0 +1,40 @@
+name: Build AudioSwitcher
+
+on:
+  push:
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: windows-2022
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: microsoft/setup-msbuild@v2
+
+      - uses: NuGet/setup-nuget@v2
+
+      - name: Restore NuGet packages
+        run: nuget restore FortyOne.AudioSwitcher.sln
+
+      - name: Build (Release)
+        # The original build signs with a password-protected .pfx we don't have;
+        # sign with the snk that ships in the repo instead (the post-build step uses it too).
+        run: >
+          msbuild FortyOne.AudioSwitcher\FortyOne.AudioSwitcher.GUI.csproj
+          /p:Configuration=Release /p:Platform=AnyCPU
+          /p:SolutionDir=${{ github.workspace }}\
+          /p:AssemblyOriginatorKeyFile=fortyone.snk
+          /v:minimal
+
+      - name: Collect output
+        shell: pwsh
+        run: |
+          New-Item -ItemType Directory -Force out | Out-Null
+          Get-ChildItem FortyOne.AudioSwitcher\bin\Release
+          Copy-Item FortyOne.AudioSwitcher\bin\Release\* out\ -Recurse
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: AudioSwitcher-fixed
+          path: out\
