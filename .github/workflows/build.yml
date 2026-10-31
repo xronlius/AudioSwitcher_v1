@@ -4,6 +4,9 @@ on:
   push:
   workflow_dispatch:
 
+permissions:
+  contents: write
+
 jobs:
   build:
     runs-on: windows-2022
@@ -38,3 +41,15 @@ jobs:
         with:
           name: AudioSwitcher-fixed
           path: out\
+
+      - name: Publish build to the 'build-output' branch
+        shell: pwsh
+        run: |
+          git config user.name "github-actions"
+          git config user.email "github-actions@users.noreply.github.com"
+          Get-ChildItem out -Recurse | Format-Table Length, Name -AutoSize | Out-String -Width 200 | Set-Content out\files.txt
+          git checkout --orphan build-output
+          git rm -rf --cached . | Out-Null
+          git add -f out
+          git commit -m "Build from ${{ github.sha }}"
+          git push -f origin build-output
